@@ -1,9 +1,9 @@
-import Router from './routes/router'
+import MainLayout from './app/layout/MainLayout'
 import './App.css'
 
 function App() {
   return (
-    <Router />
+    <MainLayout />
   )
 }
 
