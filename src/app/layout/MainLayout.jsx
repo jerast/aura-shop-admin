@@ -1,5 +1,6 @@
-import Router from '../routes/Router'
-import Sidebar from '../components/Sidebar'
+import Router from '@app/routes/Router'
+import Sidebar from '@app/components/Sidebar'
+import Notifier from '@app/components/Nofitier'
 
 function MainLayout () {
   return (
@@ -10,6 +11,7 @@ function MainLayout () {
           <Router />
         </div>
       </main>
+      <Notifier />
     </>
   )
 }

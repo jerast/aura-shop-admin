@@ -1,11 +1,8 @@
-import { Toaster, toast } from 'sonner'
+import { Toaster } from 'sonner'
 
 function Notifier () {
   return (
-    <>
-      <Toaster closeButton />
-      <button onClick={() => toast('My first toast')}>Give me a toast</button>
-    </>
+    <Toaster richColors position="top-right" />
   )
 }
 
