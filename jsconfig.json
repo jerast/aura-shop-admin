@@ -4,6 +4,7 @@
 		"paths": {
 			"@app/*": ["src/app/*"],
 			"@shared/*": ["src/shared/*"],
+			"@auth/*": ["src/modules/auth/*"],
 			"@dashboard/*": ["src/modules/dashboard/*"],
 			"@products/*": ["src/modules/products/*"],
 			"@orders/*": ["src/modules/orders/*"],

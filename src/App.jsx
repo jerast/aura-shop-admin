@@ -1,10 +1,8 @@
-import MainLayout from './app/layout/MainLayout'
-import './App.css'
+import PrivateRoutes from "@app/routes/Private.routes"
+import PublicRoutes from "@app/routes/Public.routes"
 
 function App() {
-  return (
-    <MainLayout />
-  )
+ return false ? <PrivateRoutes /> : <PublicRoutes />
 }
 
 export default App
