@@ -1,6 +1,4 @@
-import PrivateRoutes from '@app/routes/Private.routes'
 import Sidebar from '@app/components/Sidebar'
-import Notifier from '@app/components/Nofitier'
 
 function MainLayout ({ children }) {
   return (
@@ -11,7 +9,6 @@ function MainLayout ({ children }) {
           {children}
         </div>
       </main>
-      <Notifier />
     </>
   )
 }

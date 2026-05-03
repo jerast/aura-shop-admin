@@ -3,6 +3,7 @@ import { LayoutDashboard, Grid3X3, ShoppingBag, Users, Tag, SlidersHorizontal, M
 import { Link, useLocation} from 'wouter'
 import { useState, useRef } from 'react'
 import cn from '../../shared/utils/className'
+import { useAuthStore } from '@auth/store/useAuth.store'
 
 const menuItems = [
   // { name: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
@@ -19,6 +20,7 @@ function Sidebar() {
   const [mobileOpen, setMobileOpen] = useState(false)
   const [userMenuOpen, setUserMenuOpen] = useState(false)
   const userMenuRef = useRef(null)
+  const logout = useAuthStore(state => state.logout)
 
   return (
     <>
@@ -116,7 +118,8 @@ function Sidebar() {
               <button 
                 onClick={() => {
                   setUserMenuOpen(false)
-                  // Aquí iría la lógica de cerrar sesión
+                  logout()
+                  localStorage.removeItem('aura-admin-user')
                 }}
                 className="w-full flex items-center gap-3 px-4 py-3 text-sm text-foreground hover:bg-muted transition-colors"
               >
