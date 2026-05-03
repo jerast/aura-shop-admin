@@ -1,21 +1,11 @@
-import {
-  Grid3X3,
-  ShoppingBag,
-  Users,
-  Tag,
-  SlidersHorizontal,
-  Menu,
-  X,
-  LogOut,
-  ChevronDown,
-} from 'lucide-react'
 import useIsMobile from '../hooks/useMobile'
+import { LayoutDashboard, Grid3X3, ShoppingBag, Users, Tag, SlidersHorizontal, Menu, X, LogOut, ChevronDown, } from 'lucide-react'
 import { Link, useLocation} from 'wouter'
-import { useState, useRef, useEffect } from 'react'
+import { useState, useRef } from 'react'
 import cn from '../../shared/utils/className'
 
 const menuItems = [
-  // { name: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
+  { name: "Dashboard", href: "/", icon: LayoutDashboard },
   { name: "Productos", href: "/products", icon: Grid3X3 },
   { name: "Pedidos", href: "/orders", icon: ShoppingBag },
   { name: "Clientes", href: "/customers", icon: Users },

@@ -14,7 +14,12 @@ export default defineConfig({
 		alias: {
 			'@app': path.resolve(__dirname, './src/app'),
 			'@shared': path.resolve(__dirname, './src/shared'),
+			'@dashboard': path.resolve(__dirname, './src/modules/dashboard'),
 			'@products': path.resolve(__dirname, './src/modules/products'),
+			'@orders': path.resolve(__dirname, './src/modules/orders'),
+			'@customers': path.resolve(__dirname, './src/modules/customers'),
+			'@discounts': path.resolve(__dirname, './src/modules/discounts'),
+			'@settings': path.resolve(__dirname, './src/modules/settings'),
 		},
 	},
 })

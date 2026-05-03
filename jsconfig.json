@@ -4,7 +4,12 @@
 		"paths": {
 			"@app/*": ["src/app/*"],
 			"@shared/*": ["src/shared/*"],
-			"@products/*": ["src/modules/products/*"]
+			"@dashboard/*": ["src/modules/dashboard/*"],
+			"@products/*": ["src/modules/products/*"],
+			"@orders/*": ["src/modules/orders/*"],
+			"@customers/*": ["src/modules/customers/*"],
+			"@discounts/*": ["src/modules/discounts/*"],
+			"@settings/*": ["src/modules/settings/*"],
 		},
 	},
 	"exclude": ["node_modules", "dist"]
