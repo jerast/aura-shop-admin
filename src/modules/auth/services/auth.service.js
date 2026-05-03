@@ -15,7 +15,7 @@ export async function authLogin ({ email, password }) {
       })
     }
     
-    localStorage.setItem('aura-admin-user', JSON.stringify(data.user))
+    localStorage.setItem('aura-admin-user', JSON.stringify(USER))
     return ({
       ok: true,
       user: USER
