@@ -21,6 +21,7 @@ function Sidebar() {
   const [userMenuOpen, setUserMenuOpen] = useState(false)
   const userMenuRef = useRef(null)
   const logout = useAuthStore(state => state.logout)
+  const user = useAuthStore(state => state.user)
 
   return (
     <>
@@ -100,11 +101,11 @@ function Sidebar() {
             className="w-full flex items-center gap-3 px-2 py-1 rounded-lg hover:bg-muted transition-colors"
           >
             <div className="w-9 h-9 rounded-full bg-primary flex items-center justify-center text-primary-foreground text-sm font-medium">
-              MG
+              {user.username.match(/\b\w/g).join("").toUpperCase()}
             </div>
             <div className="flex-1 min-w-0 text-left">
-              <p className="text-sm font-medium text-foreground truncate">María García</p>
-              <p className="text-xs text-muted-foreground truncate">Admin</p>
+              <p className="text-sm font-medium text-foreground truncate">{user.username}</p>
+              <p className="text-xs text-muted-foreground truncate">{user.email}</p>
             </div>
             <ChevronDown className={cn(
               "w-4 h-4 text-muted-foreground transition-transform",

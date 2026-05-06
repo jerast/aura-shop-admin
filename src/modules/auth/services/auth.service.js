@@ -1,5 +1,5 @@
 const USER = {
-  username: 'Administrador',
+  username: 'Julie Gonzales',
   email: 'aura.admin@gmail.com',
   password: '1234'
 }
