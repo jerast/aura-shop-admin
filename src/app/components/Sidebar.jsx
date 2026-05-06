@@ -1,9 +1,9 @@
-import useIsMobile from '../hooks/useMobile'
 import { LayoutDashboard, Grid3X3, ShoppingBag, Users, Tag, SlidersHorizontal, Menu, X, LogOut, ChevronDown, } from 'lucide-react'
 import { Link, useLocation} from 'wouter'
 import { useState, useRef } from 'react'
-import cn from '../../shared/utils/className'
 import { useAuthStore } from '@auth/store/useAuth.store'
+import useIsMobile from '../hooks/useMobile'
+import cn from '../../shared/utils/className'
 import AuraLogo from './AuraLogo'
 
 const menuItems = [
