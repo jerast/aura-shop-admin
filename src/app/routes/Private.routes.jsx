@@ -1,6 +1,6 @@
 import { Route, Switch, Redirect } from 'wouter'
 // import DashboardPage from '@dashboard/pages/Dashboard.page'
-import ProductsPage from '@products/pages/Products.page'
+import ProductsPage from '@shop/pages/Products.page'
 import OrdersPage from '@orders/pages/Orders.page'
 import CustomersPage from '@customers/pages/Customers.page'
 import DiscountsPage from '@discounts/pages/Discounts.page'

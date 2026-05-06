@@ -16,7 +16,7 @@ export default defineConfig({
 			'@shared': path.resolve(__dirname, './src/shared'),
 			'@auth': path.resolve(__dirname, './src/modules/auth'),
 			'@dashboard': path.resolve(__dirname, './src/modules/dashboard'),
-			'@products': path.resolve(__dirname, './src/modules/products'),
+			'@shop': path.resolve(__dirname, './src/modules/shop'),
 			'@orders': path.resolve(__dirname, './src/modules/orders'),
 			'@customers': path.resolve(__dirname, './src/modules/customers'),
 			'@discounts': path.resolve(__dirname, './src/modules/discounts'),

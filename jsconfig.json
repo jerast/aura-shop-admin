@@ -7,7 +7,7 @@
 			"@shared/*": ["src/shared/*"],
 			"@auth/*": ["src/modules/auth/*"],
 			"@dashboard/*": ["src/modules/dashboard/*"],
-			"@products/*": ["src/modules/products/*"],
+			"@shop/*": ["src/modules/shop/*"],
 			"@orders/*": ["src/modules/orders/*"],
 			"@customers/*": ["src/modules/customers/*"],
 			"@discounts/*": ["src/modules/discounts/*"],

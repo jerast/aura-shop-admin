@@ -4,6 +4,7 @@ import { Link, useLocation} from 'wouter'
 import { useState, useRef } from 'react'
 import cn from '../../shared/utils/className'
 import { useAuthStore } from '@auth/store/useAuth.store'
+import AuraLogo from './AuraLogo'
 
 const menuItems = [
   // { name: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
@@ -60,10 +61,8 @@ function Sidebar() {
 
         {/* Logo */}
         <div className="px-6 py-8">
-          <h1 className="font-serif text-2xl font-bold tracking-tight text-primary">
-            LUXE
-          </h1>
-          <span className="text-xs uppercase tracking-[0.2em] text-muted-foreground">
+          <AuraLogo className="h-auto w-28 text-primary" />
+          <span className="mt-2 block text-[10px] uppercase tracking-[0.25em] text-muted-foreground">
             Admin
           </span>
         </div>
