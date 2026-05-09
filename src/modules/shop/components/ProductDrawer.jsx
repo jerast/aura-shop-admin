@@ -1,10 +1,11 @@
 import { useState, useEffect } from "react"
 import { X, Upload, ChevronDown } from "lucide-react"
+import { toast } from "sonner"
 import cn from "@shared/utils/className"
 
 const emptyForm = {
   name: "",
-  category: "Vestidos",
+  category: "",
   brand: "",
   description: "",
   price: "",
@@ -70,12 +71,13 @@ function ProductDrawer({ open, onClose, onSave, editingProduct }) {
           <button type="button" onClick={onClose} className="rounded-lg p-2 transition-colors hover:bg-muted">
             <X className="h-5 w-5 text-muted-foreground" />
           </button>
-        </div>
+        </div>  
 
         <form onSubmit={handleSave} className="space-y-8 p-6">
           <section>
             <h3 className="mb-4 text-sm font-semibold uppercase tracking-wider text-foreground">Informacion basica</h3>
             <div className="space-y-4">
+
               <div>
                 <label className="mb-2 block text-sm font-medium text-foreground">Nombre del Producto</label>
                 <input
@@ -86,6 +88,7 @@ function ProductDrawer({ open, onClose, onSave, editingProduct }) {
                   className="w-full rounded-lg border border-input bg-background px-4 py-3 text-foreground transition-all placeholder:text-muted-foreground focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
                 />
               </div>
+
               <div>
                 <label className="mb-2 block text-sm font-medium text-foreground">Descripcion</label>
                 <textarea
@@ -96,24 +99,26 @@ function ProductDrawer({ open, onClose, onSave, editingProduct }) {
                   className="w-full resize-none rounded-lg border border-input bg-background px-4 py-3 text-foreground transition-all placeholder:text-muted-foreground focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
                 />
               </div>
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="mb-2 block text-sm font-medium text-foreground">Categoria</label>
-                  <div className="relative">
-                    <select
-                      value={form.category}
-                      onChange={(event) => updateField("category", event.target.value)}
-                      className="w-full appearance-none rounded-lg border border-input bg-background px-4 py-3 text-foreground transition-all focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
-                    >
-                      <option>Vestidos</option>
-                      <option>Pantalones</option>
-                      <option>Blusas</option>
-                      <option>Chaquetas</option>
-                      <option>Faldas</option>
-                    </select>
-                    <ChevronDown className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-                  </div>
+
+              <div>
+                <label className="mb-2 block text-sm font-medium text-foreground">Categoria</label>
+                <div className="relative">
+                  <select
+                    value={form.category}
+                    onChange={(event) => updateField("category", event.target.value)}
+                    className="w-full appearance-none rounded-lg border border-input bg-background px-4 py-3 text-foreground transition-all focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
+                  >
+                    <option value="">Seleccione una</option>
+                    <option value="1">Vestidos</option>
+                    <option value="2">Pantalones</option>
+                    <option value="3">Blusas</option>
+                    <option value="4">Chaquetas</option>
+                    <option value="5">Faldas</option>
+                  </select>
+                  <ChevronDown className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
                 </div>
+              </div>
+              {/* <div className="grid grid-cols-1 gap-4">
                 <div>
                   <label className="mb-2 block text-sm font-medium text-foreground">Marca</label>
                   <input
@@ -124,12 +129,12 @@ function ProductDrawer({ open, onClose, onSave, editingProduct }) {
                     className="w-full rounded-lg border border-input bg-background px-4 py-3 text-foreground transition-all placeholder:text-muted-foreground focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
                   />
                 </div>
-              </div>
+              </div> */}
             </div>
           </section>
 
           <section>
-            <h3 className="mb-4 text-sm font-semibold uppercase tracking-wider text-foreground">Imagenes</h3>
+            <label className="mb-2 block text-sm font-medium text-foreground">Imagen</label>
             <button
               type="button"
               onClick={() => toast.success("Carga de imagen lista para integrar")}
@@ -157,8 +162,21 @@ function ProductDrawer({ open, onClose, onSave, editingProduct }) {
                   />
                 </div>
               </div>
+              <div>
+                <label className="mb-2 block text-sm font-medium text-foreground">Precio Base</label>
+                <div className="relative">
+                  <span className="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground">EUR</span>
+                  <input
+                    type="number"
+                    value={form.price}
+                    onChange={(event) => updateField("price", event.target.value)}
+                    placeholder="0.00"
+                    className="w-full rounded-lg border border-input bg-background py-3 pl-14 pr-4 text-foreground transition-all placeholder:text-muted-foreground focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
+                  />
+                </div>
+              </div>
 
-              <div className="flex items-center justify-between rounded-lg bg-muted/50 p-4">
+              {/* <div className="flex items-center justify-between rounded-lg bg-muted/50 p-4">
                 <span className="text-sm font-medium text-foreground">Aplicar Descuento</span>
                 <button
                   type="button"
@@ -175,9 +193,9 @@ function ProductDrawer({ open, onClose, onSave, editingProduct }) {
                     )}
                   />
                 </button>
-              </div>
+              </div> */}
 
-              {form.discountEnabled && (
+              {/* {form.discountEnabled && (
                 <div className="animate-in slide-in-from-top-2 space-y-4 rounded-lg border border-border bg-secondary/30 p-4 duration-200 fade-in">
                   <div className="grid grid-cols-2 gap-4">
                     <div>
@@ -211,7 +229,7 @@ function ProductDrawer({ open, onClose, onSave, editingProduct }) {
                     </div>
                   </div>
                 </div>
-              )}
+              )} */}
             </div>
           </section>
 
