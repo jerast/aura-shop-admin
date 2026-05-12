@@ -2,22 +2,21 @@ import { useState, useEffect } from "react"
 import { X, Upload, ChevronDown } from "lucide-react"
 import { toast } from "sonner"
 import cn from "@shared/utils/className"
+import { useShopStore } from '@shop/store/useShop.store'
 
 const emptyForm = {
   name: "",
   category: "",
-  brand: "",
   description: "",
-  price: "",
-  discountEnabled: false,
-  discountType: "percentage",
-  discountValue: "",
+  wholesale: "",
+  retail: "",
   sku: "",
   stock: "",
 }
 
 function ProductDrawer({ open, onClose, onSave, editingProduct }) {
   const [form, setForm] = useState(emptyForm)
+  const categories = useShopStore(state => state.categories)
   const currentProduct = editingProduct
 
   useEffect(() => {
@@ -25,14 +24,11 @@ function ProductDrawer({ open, onClose, onSave, editingProduct }) {
       setForm({
         name: currentProduct.name,
         category: currentProduct.category,
-        brand: "LUXE",
-        description: `Edicion de ${currentProduct.name}`,
-        price: String(currentProduct.price),
-        discountEnabled: Boolean(currentProduct.discount),
-        discountType: "percentage",
-        discountValue: currentProduct.discount ? String(currentProduct.discount) : "",
-        sku: `LUX-${currentProduct.id}`,
-        stock: String(currentProduct.stock),
+        description: currentProduct.description || "",
+        wholesale: currentProduct.prices?.wholesale ?? "",
+        retail: currentProduct.prices?.retail ?? "",
+        sku: currentProduct.reference || "",
+        stock: currentProduct.stock ?? "",
       })
       return
     }
@@ -52,9 +48,13 @@ function ProductDrawer({ open, onClose, onSave, editingProduct }) {
     const payload = {
       name: form.name || "Nuevo producto",
       category: form.category,
-      price: Number(form.price || 0),
+      description: form.description,
+      prices: {
+        wholesale: Number(form.wholesale || 0),
+        retail: Number(form.retail || 0),
+      },
       stock: Number(form.stock || 0),
-      discount: form.discountEnabled ? Number(form.discountValue || 0) : null,
+      reference: form.sku,
     }
 
     onSave(payload)
@@ -109,11 +109,9 @@ function ProductDrawer({ open, onClose, onSave, editingProduct }) {
                     className="w-full appearance-none rounded-lg border border-input bg-background px-4 py-3 text-foreground transition-all focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
                   >
                     <option value="">Seleccione una</option>
-                    <option value="1">Vestidos</option>
-                    <option value="2">Pantalones</option>
-                    <option value="3">Blusas</option>
-                    <option value="4">Chaquetas</option>
-                    <option value="5">Faldas</option>
+                    {categories.map((cat) => (
+                      <option key={cat.id} value={cat.name}>{cat.name}</option>
+                    ))}
                   </select>
                   <ChevronDown className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
                 </div>
@@ -148,88 +146,33 @@ function ProductDrawer({ open, onClose, onSave, editingProduct }) {
 
           <section>
             <h3 className="mb-4 text-sm font-semibold uppercase tracking-wider text-foreground">Precio</h3>
-            <div className="space-y-4">
+            <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="mb-2 block text-sm font-medium text-foreground">Precio Base</label>
+                <label className="mb-2 block text-sm font-medium text-foreground">Venta (wholesale)</label>
                 <div className="relative">
-                  <span className="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground">EUR</span>
+                  <span className="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground">COP</span>
                   <input
                     type="number"
-                    value={form.price}
-                    onChange={(event) => updateField("price", event.target.value)}
-                    placeholder="0.00"
+                    value={form.wholesale}
+                    onChange={(event) => updateField("wholesale", event.target.value)}
+                    placeholder="0"
                     className="w-full rounded-lg border border-input bg-background py-3 pl-14 pr-4 text-foreground transition-all placeholder:text-muted-foreground focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
                   />
                 </div>
               </div>
               <div>
-                <label className="mb-2 block text-sm font-medium text-foreground">Precio Base</label>
+                <label className="mb-2 block text-sm font-medium text-foreground">Con descuento (retail)</label>
                 <div className="relative">
-                  <span className="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground">EUR</span>
+                  <span className="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground">COP</span>
                   <input
                     type="number"
-                    value={form.price}
-                    onChange={(event) => updateField("price", event.target.value)}
-                    placeholder="0.00"
+                    value={form.retail}
+                    onChange={(event) => updateField("retail", event.target.value)}
+                    placeholder="0"
                     className="w-full rounded-lg border border-input bg-background py-3 pl-14 pr-4 text-foreground transition-all placeholder:text-muted-foreground focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
                   />
                 </div>
               </div>
-
-              {/* <div className="flex items-center justify-between rounded-lg bg-muted/50 p-4">
-                <span className="text-sm font-medium text-foreground">Aplicar Descuento</span>
-                <button
-                  type="button"
-                  onClick={() => updateField("discountEnabled", !form.discountEnabled)}
-                  className={cn(
-                    "relative h-6 w-11 overflow-hidden rounded-full transition-colors",
-                    form.discountEnabled ? "bg-primary" : "bg-border"
-                  )}
-                >
-                  <span
-                    className={cn(
-                      "absolute top-1 h-4 w-4 rounded-full bg-card shadow-sm transition-transform",
-                      form.discountEnabled ? "-translate-x-5" : "translate-x-1"
-                    )}
-                  />
-                </button>
-              </div> */}
-
-              {/* {form.discountEnabled && (
-                <div className="animate-in slide-in-from-top-2 space-y-4 rounded-lg border border-border bg-secondary/30 p-4 duration-200 fade-in">
-                  <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <label className="mb-2 block text-sm font-medium text-foreground">Tipo</label>
-                      <div className="relative">
-                        <select
-                          value={form.discountType}
-                          onChange={(event) => updateField("discountType", event.target.value)}
-                          className="w-full appearance-none rounded-lg border border-input bg-background px-4 py-3 text-foreground transition-all focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
-                        >
-                          <option value="percentage">Porcentaje</option>
-                          <option value="fixed">Cantidad fija</option>
-                        </select>
-                        <ChevronDown className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-                      </div>
-                    </div>
-                    <div>
-                      <label className="mb-2 block text-sm font-medium text-foreground">Valor</label>
-                      <div className="relative">
-                        <input
-                          type="number"
-                          value={form.discountValue}
-                          onChange={(event) => updateField("discountValue", event.target.value)}
-                          placeholder="25"
-                          className="w-full rounded-lg border border-input bg-background px-4 py-3 pr-8 text-foreground transition-all placeholder:text-muted-foreground focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
-                        />
-                        <span className="absolute right-4 top-1/2 -translate-y-1/2 text-muted-foreground">
-                          {form.discountType === "percentage" ? "%" : "EUR"}
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              )} */}
             </div>
           </section>
 
@@ -237,13 +180,13 @@ function ProductDrawer({ open, onClose, onSave, editingProduct }) {
             <h3 className="mb-4 text-sm font-semibold uppercase tracking-wider text-foreground">Inventario</h3>
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="mb-2 block text-sm font-medium text-foreground">SKU</label>
+                <label className="mb-2 block text-sm font-medium text-foreground">Referencia</label>
                 <input
                   type="text"
                   value={form.sku}
                   onChange={(event) => updateField("sku", event.target.value)}
-                  placeholder="LUX-001"
-                  className="w-full rounded-lg border border-input bg-background px-4 py-3 text-foreground transition-all placeholder:text-muted-foreground focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
+                  placeholder="9628-002"
+                  className="w-full rounded-lg border border-input bg-background px-3 py-3 text-foreground transition-all placeholder:text-muted-foreground focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
                 />
               </div>
               <div>

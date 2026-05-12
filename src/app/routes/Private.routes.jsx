@@ -21,6 +21,9 @@ function PrivateRoutes () {
       const categories = await getCategories()
       setProducts(products)
       setCategories(categories)
+      console.log(JSON.stringify(products[0]));
+      console.log(JSON.stringify(categories[0]));
+      
     })()
   }, [])
 

@@ -3,6 +3,7 @@ import useProducts from "@shop/hooks/useProducts"
 import ProductDrawer from '@shop/components/ProductDrawer'
 import ProductCard from '@shop/components/ProductCard'
 import cn  from '@shared/utils/className'
+import { useShopStore } from '@shop/store/useShop.store'
 
 function ProductsPage() {
   const {
@@ -24,6 +25,8 @@ function ProductsPage() {
     handleDelete,
     handleSaveProduct 
   } = useProducts()
+
+  const categories = useShopStore(state => state.categories)
 
   return (
     <div>
@@ -54,19 +57,17 @@ function ProductsPage() {
           />
         </div>
         <div className="flex gap-3">
-          <div className="relative">
-            <select
-              value={selectedCategory}
-              onChange={(event) => setSelectedCategory(event.target.value)}
-              className="appearance-none rounded-lg border border-input bg-card px-4 py-2.5 pr-10 text-sm text-foreground transition-all focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
-            >
-              <option>Todas las categorias</option>
-              <option>Vestidos</option>
-              <option>Pantalones</option>
-              <option>Blusas</option>
-              <option>Chaquetas</option>
-              <option>Faldas</option>
-            </select>
+            <div className="relative">
+              <select
+                value={selectedCategory}
+                onChange={(event) => setSelectedCategory(event.target.value)}
+                className="appearance-none rounded-lg border border-input bg-card px-4 py-2.5 pr-10 text-sm text-foreground transition-all focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
+              >
+                <option>Todas las categorias</option>
+                {categories.map((cat) => (
+                  <option key={cat.id} value={cat.name}>{cat.name}</option>
+                ))}
+              </select>
             <ChevronDown className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
           </div>
           <div className="flex overflow-hidden rounded-lg border border-input">
