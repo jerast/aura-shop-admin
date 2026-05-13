@@ -1,6 +1,6 @@
 import { Toaster } from 'sonner'
 import { useAuthStore } from '@auth/store/useAuth.store'
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { authToken } from '@auth/services/auth.service'
 import PrivateRoutes from '@app/routes/Private.routes'
 import PublicRoutes from '@app/routes/Public.routes'
@@ -9,17 +9,22 @@ import { useLocation } from 'wouter'
 function App() {
   const user = useAuthStore(state => state.user)
   const login = useAuthStore(state => state.login)
-  const [_, setLocation] = useLocation()
+  const [isLoading, setIsLoading] = useState(true)
+  const [location, setLocation] = useLocation()
 
   useEffect(() => {
     (async () => {
       const tokenUser = await authToken()
       if (tokenUser.ok) {
         login(tokenUser.user)
-        setLocation('/')
       }
+      setIsLoading(false)
     })()
   }, [])
+
+  if (isLoading) {
+    return null
+  }
 
   return (
     <>
