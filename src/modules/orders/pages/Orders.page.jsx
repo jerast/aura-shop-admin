@@ -1,8 +1,9 @@
 import { useEffect } from 'react'
-import { Search, ChevronDown, Eye, MoreHorizontal, X } from 'lucide-react'
+import { Search, ChevronDown, Eye, X } from 'lucide-react'
 import cn from '@shared/utils/className'
 import { getOrders } from '@orders/services/orders.services'
 import { useOrdersStore } from '@orders/store/useOrders.store'
+import { useUsersStore } from '@customers/store/useUsers.store'
 import useOrders from '@orders/hooks/useOrders'
 
 const statusConfig = {
@@ -27,10 +28,11 @@ function formatDate(dateStr) {
   })
 }
 
-function OrderDetail({ order, onClose }) {
+function OrderDetail({ order, onClose, getUserName }) {
   if (!order) return null
 
   const totalItems = order.list?.reduce((acc, item) => acc + item.count, 0) || 0
+  const userName = getUserName(order.user)
 
   return (
     <>
@@ -54,7 +56,7 @@ function OrderDetail({ order, onClose }) {
         <div className="flex-1 space-y-6 overflow-y-auto p-6">
           <div className="rounded-2xl border border-border bg-muted/30 p-5">
             <p className="text-xs uppercase tracking-[0.2em] text-muted-foreground">Cliente</p>
-            <p className="mt-2 text-sm font-medium text-foreground">{order.user}</p>
+            <h3 className="mt-2 text-lg font-semibold text-foreground">{userName}</h3>
           </div>
 
           <div className="grid grid-cols-2 gap-4">
@@ -110,6 +112,12 @@ function OrderDetail({ order, onClose }) {
 function OrdersPage() {
   const orders = useOrdersStore(state => state.orders)
   const setOrders = useOrdersStore(state => state.setOrders)
+  const users = useUsersStore(state => state.users)
+
+  function getUserName(userId) {
+    const user = users.find(u => u.id === userId)
+    return user ? `${user.name} ${user.surname}` : userId
+  }
 
   const {
     search,
@@ -131,7 +139,7 @@ function OrdersPage() {
     })()
   }, [])
 
-  const filteredOrders = filterOrders(orders)
+  const filteredOrders = filterOrders(orders, getUserName)
   const stats = computeStats(orders)
 
   return (
@@ -221,9 +229,7 @@ function OrdersPage() {
                         <span className="font-medium text-foreground">{order.id}</span>
                       </td>
                       <td className="px-6 py-4">
-                        <div>
-                          <p className="font-medium text-foreground">{order.user}</p>
-                        </div>
+                        <span className="font-medium text-foreground">{getUserName(order.user)}</span>
                       </td>
                       <td className="px-6 py-4 text-sm text-muted-foreground">{formatDate(order.date)}</td>
                       <td className="px-6 py-4 text-sm tabular-nums text-foreground">{itemCount}</td>
@@ -260,7 +266,7 @@ function OrdersPage() {
         </div>
       </div>
 
-      <OrderDetail order={selectedOrder} onClose={() => setSelectedOrder(null)} />
+      <OrderDetail order={selectedOrder} onClose={() => setSelectedOrder(null)} getUserName={getUserName} />
     </>
   )
 }

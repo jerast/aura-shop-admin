@@ -6,14 +6,14 @@ function useOrders() {
   const [dateFilter, setDateFilter] = useState("7")
   const [selectedOrder, setSelectedOrder] = useState(null)
 
-  function filterOrders(orders) {
+  function filterOrders(orders, getUserName) {
     const query = search.trim().toLowerCase()
 
     const filtered = orders.filter((order) => {
       const matchesQuery =
         !query ||
         order.id.toLowerCase().includes(query) ||
-        order.user?.toLowerCase().includes(query)
+        (getUserName ? getUserName(order.user).toLowerCase().includes(query) : true)
 
       const matchesStatus = statusFilter === "all" || order.status === statusFilter
 
