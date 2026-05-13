@@ -9,11 +9,14 @@ import MainLayout from '@app/layout/MainLayout'
 import { getProducts } from '@shop/services/products.services'
 import { useShopStore } from '@shop/store/useShop.store'
 import { getCategories } from '@shop/services/categories.services'
+import { getUsers } from '@customers/services/users.services'
+import { useUsersStore } from '@customers/store/useUsers.store'
 // import SettingsPage from '@settings/pages/Settings.page'
 
 function PrivateRoutes () {
   const setProducts = useShopStore(state => state.setProducts)
   const setCategories = useShopStore(state => state.setCategories)
+  const setUsers = useUsersStore(state => state.setUsers)
 
   useEffect(() => {
     (async () => {
@@ -21,6 +24,8 @@ function PrivateRoutes () {
       const categories = await getCategories()
       setProducts(products)
       setCategories(categories)
+      const users = await getUsers()
+      setUsers(users)
     })()
   }, [])
 
