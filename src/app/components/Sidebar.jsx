@@ -11,7 +11,7 @@ const menuItems = [
   { name: "Productos", href: "/products", icon: Grid3X3 },
   { name: "Pedidos", href: "/orders", icon: ShoppingBag },
   { name: "Clientes", href: "/customers", icon: Users },
-  { name: "Descuentos", href: "/discounts", icon: Tag },
+  // { name: "Descuentos", href: "/discounts", icon: Tag },
   // { name: "Configuración", href: "/settings", icon: SlidersHorizontal },
 ]
 

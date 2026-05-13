@@ -1,34 +1,36 @@
-import { useMemo, useState } from 'react'
+import { useEffect } from 'react'
 import { Search, ChevronDown, Eye, MoreHorizontal, X } from 'lucide-react'
 import cn from '@shared/utils/className'
-
-const initialOrders = [
-  { id: "#ORD-7842", customer: "Ana Martinez", email: "ana@email.com", date: "15 Mar 2024", items: 3, amount: "EUR 245.00", status: "delivered" },
-  { id: "#ORD-7841", customer: "Carlos Lopez", email: "carlos@email.com", date: "14 Mar 2024", items: 2, amount: "EUR 189.50", status: "active" },
-  { id: "#ORD-7840", customer: "Maria Garcia", email: "maria@email.com", date: "14 Mar 2024", items: 5, amount: "EUR 432.00", status: "pending" },
-  { id: "#ORD-7839", customer: "Pedro Sanchez", email: "pedro@email.com", date: "13 Mar 2024", items: 1, amount: "EUR 98.00", status: "delivered" },
-  { id: "#ORD-7838", customer: "Laura Fernandez", email: "laura@email.com", date: "13 Mar 2024", items: 4, amount: "EUR 567.00", status: "cancelled" },
-  { id: "#ORD-7837", customer: "Diego Ruiz", email: "diego@email.com", date: "12 Mar 2024", items: 2, amount: "EUR 312.00", status: "active" },
-  { id: "#ORD-7836", customer: "Carmen Vega", email: "carmen@email.com", date: "12 Mar 2024", items: 3, amount: "EUR 198.00", status: "delivered" },
-  { id: "#ORD-7835", customer: "Javier Moreno", email: "javier@email.com", date: "11 Mar 2024", items: 1, amount: "EUR 89.99", status: "pending" },
-]
+import { getOrders } from '@orders/services/orders.services'
+import { useOrdersStore } from '@orders/store/useOrders.store'
+import useOrders from '@orders/hooks/useOrders'
 
 const statusConfig = {
   pending: { label: "Pendiente", className: "bg-amber-100 text-amber-700" },
-  active: { label: "Activo", className: "bg-sky-100 text-sky-700" },
+  ready: { label: "Listo", className: "bg-sky-100 text-sky-700" },
   delivered: { label: "Entregado", className: "bg-emerald-100 text-emerald-700" },
-  cancelled: { label: "Cancelado", className: "bg-rose-100 text-rose-700" },
+  canceled: { label: "Cancelado", className: "bg-rose-100 text-rose-700" },
 }
 
 const dateFilterOptions = [
-  { value: "7", label: "Ultimos 7 dias" },
-  { value: "30", label: "Ultimos 30 dias" },
+  { value: "7", label: "Últimos 7 días" },
+  { value: "30", label: "Últimos 30 días" },
   { value: "month", label: "Este mes" },
-  { value: "year", label: "Este ano" },
+  { value: "year", label: "Este año" },
 ]
 
-function OrderDetail({ order, onClose, onUpdateStatus }) {
+function formatDate(dateStr) {
+  return new Date(dateStr).toLocaleDateString('es-ES', {
+    day: 'numeric',
+    month: 'short',
+    year: 'numeric',
+  })
+}
+
+function OrderDetail({ order, onClose }) {
   if (!order) return null
+
+  const totalItems = order.list?.reduce((acc, item) => acc + item.count, 0) || 0
 
   return (
     <>
@@ -37,7 +39,7 @@ function OrderDetail({ order, onClose, onUpdateStatus }) {
         <div className="flex items-center justify-between border-b border-border px-6 py-4">
           <div>
             <h2 className="font-serif text-xl font-semibold text-foreground">{order.id}</h2>
-            <p className="mt-1 text-sm text-muted-foreground">Detalle y gestion del pedido</p>
+            <p className="mt-1 text-sm text-muted-foreground">Detalle y gestión del pedido</p>
           </div>
           <button
             type="button"
@@ -52,18 +54,17 @@ function OrderDetail({ order, onClose, onUpdateStatus }) {
         <div className="flex-1 space-y-6 overflow-y-auto p-6">
           <div className="rounded-2xl border border-border bg-muted/30 p-5">
             <p className="text-xs uppercase tracking-[0.2em] text-muted-foreground">Cliente</p>
-            <h3 className="mt-2 text-lg font-semibold text-foreground">{order.customer}</h3>
-            <p className="text-sm text-muted-foreground">{order.email}</p>
+            <p className="mt-2 text-sm font-medium text-foreground">{order.user}</p>
           </div>
 
           <div className="grid grid-cols-2 gap-4">
             <div className="rounded-2xl border border-border p-4">
               <p className="text-xs uppercase tracking-[0.2em] text-muted-foreground">Fecha</p>
-              <p className="mt-2 font-medium text-foreground">{order.date}</p>
+              <p className="mt-2 font-medium text-foreground">{formatDate(order.date)}</p>
             </div>
             <div className="rounded-2xl border border-border p-4">
               <p className="text-xs uppercase tracking-[0.2em] text-muted-foreground">Importe</p>
-              <p className="mt-2 font-medium text-foreground">{order.amount}</p>
+              <p className="mt-2 font-medium text-foreground">COP {order.total_price?.toLocaleString()}</p>
             </div>
           </div>
 
@@ -71,31 +72,35 @@ function OrderDetail({ order, onClose, onUpdateStatus }) {
             <div className="flex items-center justify-between gap-4">
               <div>
                 <p className="text-xs uppercase tracking-[0.2em] text-muted-foreground">Estado actual</p>
-                <span className={cn("mt-3 inline-flex rounded-full px-3 py-1 text-xs font-semibold", statusConfig[order.status].className)}>
-                  {statusConfig[order.status].label}
+                <span className={cn("mt-3 inline-flex rounded-full px-3 py-1 text-xs font-semibold", statusConfig[order.status]?.className || "")}>
+                  {statusConfig[order.status]?.label || order.status}
                 </span>
               </div>
-              <p className="text-sm text-muted-foreground">{order.items} articulos</p>
-            </div>
-
-            <div className="mt-5 grid grid-cols-2 gap-3">
-              {Object.entries(statusConfig).map(([status, config]) => (
-                <button
-                  key={status}
-                  type="button"
-                  onClick={() => onUpdateStatus(order.id, status)}
-                  className={cn(
-                    "rounded-xl border px-4 py-3 text-sm font-medium transition-all",
-                    order.status === status
-                      ? "border-primary bg-primary text-primary-foreground shadow-sm"
-                      : "border-border bg-background text-foreground hover:border-primary/30 hover:bg-muted"
-                  )}
-                >
-                  {config.label}
-                </button>
-              ))}
+              <p className="text-sm text-muted-foreground">{totalItems} artículos</p>
             </div>
           </div>
+
+          {order.list?.length > 0 && (
+            <div className="rounded-2xl border border-border p-5">
+              <p className="text-xs uppercase tracking-[0.2em] text-muted-foreground">Productos</p>
+              <div className="mt-3 space-y-3">
+                {order.list.map((item) => (
+                  <div key={item._id} className="flex items-center justify-between py-2 border-b border-border last:border-0">
+                    <div>
+                      <p className="text-sm font-medium text-foreground">{item.product}</p>
+                      <p className="text-xs text-muted-foreground">x{item.count}</p>
+                    </div>
+                    <div className="text-right">
+                      <p className="text-sm font-medium text-foreground">COP {item.prices?.wholesale?.toLocaleString()}</p>
+                      {item.prices?.retail && item.prices.retail !== item.prices.wholesale && (
+                        <p className="text-xs text-muted-foreground line-through">COP {item.prices.retail.toLocaleString()}</p>
+                      )}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
       </div>
     </>
@@ -103,66 +108,31 @@ function OrderDetail({ order, onClose, onUpdateStatus }) {
 }
 
 function OrdersPage() {
-  const [orders, setOrders] = useState(initialOrders)
-  const [search, setSearch] = useState("")
-  const [statusFilter, setStatusFilter] = useState("all")
-  const [dateFilter, setDateFilter] = useState("7")
-  const [selectedOrder, setSelectedOrder] = useState(null)
+  const orders = useOrdersStore(state => state.orders)
+  const setOrders = useOrdersStore(state => state.setOrders)
 
-  const filteredOrders = useMemo(() => {
-    const query = search.trim().toLowerCase()
+  const {
+    search,
+    statusFilter,
+    dateFilter,
+    selectedOrder,
+    setSearch,
+    setStatusFilter,
+    setDateFilter,
+    setSelectedOrder,
+    filterOrders,
+    computeStats,
+  } = useOrders()
 
-    return orders.filter((order) => {
-      const matchesQuery =
-        !query ||
-        order.id.toLowerCase().includes(query) ||
-        order.customer.toLowerCase().includes(query) ||
-        order.email.toLowerCase().includes(query)
+  useEffect(() => {
+    (async () => {
+      const data = await getOrders()
+      setOrders(data)
+    })()
+  }, [])
 
-      const matchesStatus = statusFilter === "all" || order.status === statusFilter
-      const matchesDate = dateFilter === "7" || dateFilter === "30" || dateFilter === "month" || dateFilter === "year"
-
-      return matchesQuery && matchesStatus && matchesDate
-    })
-  }, [dateFilter, orders, search, statusFilter])
-
-  const stats = useMemo(() => {
-    const totals = orders.reduce(
-      (acc, order) => {
-        acc.total += 1
-        acc[order.status] += 1
-        return acc
-      },
-      { total: 0, pending: 0, active: 0, delivered: 0, cancelled: 0 }
-    )
-
-    return [
-      { label: "Total pedidos", value: totals.total },
-      { label: "Pendientes", value: totals.pending },
-      { label: "Activos", value: totals.active },
-      { label: "Entregados", value: totals.delivered },
-    ]
-  }, [orders])
-
-  function updateOrderStatus(orderId, nextStatus) {
-    setOrders((currentOrders) =>
-      currentOrders.map((order) => (order.id === orderId ? { ...order, status: nextStatus } : order))
-    )
-    setSelectedOrder((currentOrder) =>
-      currentOrder && currentOrder.id === orderId ? { ...currentOrder, status: nextStatus } : currentOrder
-    )
-  }
-
-  function cycleStatus(order) {
-    const nextStatusByCurrent = {
-      pending: "active",
-      active: "delivered",
-      delivered: "cancelled",
-      cancelled: "pending",
-    }
-
-    updateOrderStatus(order.id, nextStatusByCurrent[order.status])
-  }
+  const filteredOrders = filterOrders(orders)
+  const stats = computeStats(orders)
 
   return (
     <>
@@ -236,54 +206,48 @@ function OrdersPage() {
                   <th className="px-6 py-4 text-left text-xs font-medium uppercase tracking-wider text-muted-foreground">ID Pedido</th>
                   <th className="px-6 py-4 text-left text-xs font-medium uppercase tracking-wider text-muted-foreground">Cliente</th>
                   <th className="px-6 py-4 text-left text-xs font-medium uppercase tracking-wider text-muted-foreground">Fecha</th>
-                  <th className="px-6 py-4 text-left text-xs font-medium uppercase tracking-wider text-muted-foreground">Articulos</th>
+                  <th className="px-6 py-4 text-left text-xs font-medium uppercase tracking-wider text-muted-foreground">Artículos</th>
                   <th className="px-6 py-4 text-left text-xs font-medium uppercase tracking-wider text-muted-foreground">Importe</th>
                   <th className="px-6 py-4 text-left text-xs font-medium uppercase tracking-wider text-muted-foreground">Estado</th>
                   <th className="px-6 py-4 text-right text-xs font-medium uppercase tracking-wider text-muted-foreground">Acciones</th>
                 </tr>
               </thead>
               <tbody>
-                {filteredOrders.map((order) => (
-                  <tr key={order.id} className="border-b border-border last:border-0 transition-colors hover:bg-secondary/30">
-                    <td className="px-6 py-4">
-                      <span className="font-medium text-foreground">{order.id}</span>
-                    </td>
-                    <td className="px-6 py-4">
-                      <div>
-                        <p className="font-medium text-foreground">{order.customer}</p>
-                        <p className="text-sm text-muted-foreground">{order.email}</p>
-                      </div>
-                    </td>
-                    <td className="px-6 py-4 text-sm text-muted-foreground">{order.date}</td>
-                    <td className="px-6 py-4 text-sm tabular-nums text-foreground">{order.items}</td>
-                    <td className="px-6 py-4 text-sm font-medium tabular-nums text-foreground">{order.amount}</td>
-                    <td className="px-6 py-4">
-                      <span className={cn("inline-flex items-center rounded-full px-2.5 py-1 text-xs font-medium", statusConfig[order.status].className)}>
-                        {statusConfig[order.status].label}
-                      </span>
-                    </td>
-                    <td className="px-6 py-4">
-                      <div className="flex items-center justify-end gap-2">
-                        <button
-                          type="button"
-                          onClick={() => setSelectedOrder(order)}
-                          className="rounded-lg p-2 transition-colors hover:bg-muted"
-                          aria-label={`Ver ${order.id}`}
-                        >
-                          <Eye className="h-4 w-4 text-muted-foreground" />
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => cycleStatus(order)}
-                          className="rounded-lg p-2 transition-colors hover:bg-muted"
-                          aria-label={`Cambiar estado de ${order.id}`}
-                        >
-                          <MoreHorizontal className="h-4 w-4 text-muted-foreground" />
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                ))}
+                {filteredOrders.map((order) => {
+                  const itemCount = order.list?.reduce((acc, item) => acc + item.count, 0) || 0
+                  return (
+                    <tr key={order._id} className="border-b border-border last:border-0 transition-colors hover:bg-secondary/30">
+                      <td className="px-6 py-4">
+                        <span className="font-medium text-foreground">{order.id}</span>
+                      </td>
+                      <td className="px-6 py-4">
+                        <div>
+                          <p className="font-medium text-foreground">{order.user}</p>
+                        </div>
+                      </td>
+                      <td className="px-6 py-4 text-sm text-muted-foreground">{formatDate(order.date)}</td>
+                      <td className="px-6 py-4 text-sm tabular-nums text-foreground">{itemCount}</td>
+                      <td className="px-6 py-4 text-sm font-medium tabular-nums text-foreground">COP {order.total_price?.toLocaleString()}</td>
+                      <td className="px-6 py-4">
+                        <span className={cn("inline-flex items-center rounded-full px-2.5 py-1 text-xs font-medium", statusConfig[order.status]?.className || "")}>
+                          {statusConfig[order.status]?.label || order.status}
+                        </span>
+                      </td>
+                      <td className="px-6 py-4">
+                        <div className="flex items-center justify-end gap-2">
+                          <button
+                            type="button"
+                            onClick={() => setSelectedOrder(order)}
+                            className="rounded-lg p-2 transition-colors hover:bg-muted"
+                            aria-label={`Ver ${order.id}`}
+                          >
+                            <Eye className="h-4 w-4 text-muted-foreground" />
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  )
+                })}
               </tbody>
             </table>
           </div>
@@ -296,7 +260,7 @@ function OrdersPage() {
         </div>
       </div>
 
-      <OrderDetail order={selectedOrder} onClose={() => setSelectedOrder(null)} onUpdateStatus={updateOrderStatus} />
+      <OrderDetail order={selectedOrder} onClose={() => setSelectedOrder(null)} />
     </>
   )
 }

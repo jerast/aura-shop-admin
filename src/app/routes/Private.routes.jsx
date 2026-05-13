@@ -21,9 +21,6 @@ function PrivateRoutes () {
       const categories = await getCategories()
       setProducts(products)
       setCategories(categories)
-      console.log(JSON.stringify(products[0]));
-      console.log(JSON.stringify(categories[0]));
-      
     })()
   }, [])
 
@@ -37,7 +34,7 @@ function PrivateRoutes () {
         <Route path="/products" component={ProductsPage} />
         <Route path="/orders" component={OrdersPage} />
         <Route path="/customers" component={CustomersPage} />
-        <Route path="/discounts" component={DiscountsPage} />
+        {/* <Route path="/discounts" component={DiscountsPage} /> */}
         {/* <Route path="/settings" component={SettingsPage} /> */}
         <Route path="*">404, Not Found!</Route>
       </Switch>
