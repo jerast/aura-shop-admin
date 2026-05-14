@@ -12,6 +12,7 @@ function ProductsPage() {
     selectedCategory,
     search,
     editingProduct,
+    isSaving,
     
     setViewMode,
     setDrawerOpen,
@@ -121,6 +122,7 @@ function ProductsPage() {
         }}
         onSave={handleSaveProduct}
         editingProduct={editingProduct}
+        isSaving={isSaving}
       />
     </div>
   )

@@ -1,5 +1,5 @@
-import { useState, useEffect } from "react"
-import { X, Upload, ChevronDown } from "lucide-react"
+import { useState, useEffect, useRef } from "react"
+import { X, Upload, ChevronDown, ImageIcon } from "lucide-react"
 import { toast } from "sonner"
 import cn from "@shared/utils/className"
 import { useShopStore } from '@shop/store/useShop.store'
@@ -14,8 +14,11 @@ const emptyForm = {
   stock: "",
 }
 
-function ProductDrawer({ open, onClose, onSave, editingProduct }) {
+function ProductDrawer({ open, onClose, onSave, editingProduct, isSaving }) {
   const [form, setForm] = useState(emptyForm)
+  const [imageFile, setImageFile] = useState(null)
+  const [imagePreview, setImagePreview] = useState(null)
+  const fileInputRef = useRef(null)
   const categories = useShopStore(state => state.categories)
   const currentProduct = editingProduct
 
@@ -30,10 +33,15 @@ function ProductDrawer({ open, onClose, onSave, editingProduct }) {
         sku: currentProduct.reference || "",
         stock: currentProduct.stock ?? "",
       })
+      if (currentProduct.image) {
+        setImagePreview(`https://res.cloudinary.com/jerastcloud/image/upload/w_300/Aura-B/products/${currentProduct.image}`)
+      }
       return
     }
 
     setForm(emptyForm)
+    setImageFile(null)
+    setImagePreview(null)
   }, [currentProduct, open])
 
   if (!open) return null
@@ -42,19 +50,33 @@ function ProductDrawer({ open, onClose, onSave, editingProduct }) {
     setForm((current) => ({ ...current, [field]: value }))
   }
 
+  function handleImageChange(e) {
+    const file = e.target.files?.[0]
+    if (!file) return
+
+    if (!file.type.startsWith('image/')) {
+      toast.error('Selecciona un archivo de imagen válido')
+      return
+    }
+
+    setImageFile(file)
+    setImagePreview(URL.createObjectURL(file))
+  }
+
   function handleSave(event) {
     event.preventDefault()
 
-    const payload = {
-      name: form.name || "Nuevo producto",
-      category: form.category,
-      description: form.description,
-      prices: {
-        wholesale: Number(form.wholesale || 0),
-        retail: Number(form.retail || 0),
-      },
-      stock: Number(form.stock || 0),
-      reference: form.sku,
+    const payload = new FormData()
+    payload.append('name', form.name || "Nuevo producto")
+    payload.append('category', form.category)
+    payload.append('description', form.description || "")
+    payload.append('prices[wholesale]', form.wholesale || 0)
+    payload.append('prices[retail]', form.retail || 0)
+    payload.append('stock', form.stock || 0)
+    payload.append('reference', form.sku || "")
+
+    if (imageFile) {
+      payload.append('image', imageFile)
     }
 
     onSave(payload)
@@ -116,32 +138,44 @@ function ProductDrawer({ open, onClose, onSave, editingProduct }) {
                   <ChevronDown className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
                 </div>
               </div>
-              {/* <div className="grid grid-cols-1 gap-4">
-                <div>
-                  <label className="mb-2 block text-sm font-medium text-foreground">Marca</label>
-                  <input
-                    type="text"
-                    value={form.brand}
-                    onChange={(event) => updateField("brand", event.target.value)}
-                    placeholder="Ej: LUXE"
-                    className="w-full rounded-lg border border-input bg-background px-4 py-3 text-foreground transition-all placeholder:text-muted-foreground focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
-                  />
-                </div>
-              </div> */}
             </div>
           </section>
 
           <section>
             <label className="mb-2 block text-sm font-medium text-foreground">Imagen</label>
-            <button
-              type="button"
-              onClick={() => toast.success("Carga de imagen lista para integrar")}
-              className="w-full cursor-pointer rounded-xl border-2 border-dashed border-border p-8 text-center transition-colors hover:border-primary/50"
-            >
-              <Upload className="mx-auto mb-3 h-8 w-8 text-muted-foreground" />
-              <p className="text-sm font-medium text-foreground">Arrastra imagenes aqui</p>
-              <p className="mt-1 text-xs text-muted-foreground">o haz clic para seleccionar</p>
-            </button>
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept="image/*"
+              onChange={handleImageChange}
+              className="hidden"
+            />
+            {imagePreview ? (
+              <div className="relative rounded-xl overflow-hidden border border-border">
+                <img src={imagePreview} alt="Preview" className="w-full aspect-square object-cover" />
+                <button
+                  type="button"
+                  onClick={() => {
+                    setImageFile(null)
+                    setImagePreview(null)
+                    if (fileInputRef.current) fileInputRef.current.value = ''
+                  }}
+                  className="absolute top-2 right-2 rounded-full bg-destructive p-1.5 text-white hover:bg-destructive/90"
+                >
+                  <X className="h-4 w-4" />
+                </button>
+              </div>
+            ) : (
+              <button
+                type="button"
+                onClick={() => fileInputRef.current?.click()}
+                className="w-full cursor-pointer rounded-xl border-2 border-dashed border-border p-8 text-center transition-colors hover:border-primary/50"
+              >
+                <Upload className="mx-auto mb-3 h-8 w-8 text-muted-foreground" />
+                <p className="text-sm font-medium text-foreground">Arrastra imagen aqui</p>
+                <p className="mt-1 text-xs text-muted-foreground">o haz clic para seleccionar</p>
+              </button>
+            )}
           </section>
 
           <section>
@@ -206,12 +240,13 @@ function ProductDrawer({ open, onClose, onSave, editingProduct }) {
             <button
               type="button"
               onClick={onClose}
-              className="flex-1 rounded-lg border border-border py-3 text-sm font-medium text-foreground transition-colors hover:bg-muted"
+              disabled={isSaving}
+              className="flex-1 rounded-lg border border-border py-3 text-sm font-medium text-foreground transition-colors hover:bg-muted disabled:opacity-50"
             >
-              Guardar borrador
+              Cancelar
             </button>
-            <button type="submit" className="flex-1 rounded-lg bg-primary py-3 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90">
-              {currentProduct ? "Guardar cambios" : "Publicar"}
+            <button type="submit" disabled={isSaving} className="flex-1 rounded-lg bg-primary py-3 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90 disabled:opacity-50">
+              {isSaving ? "Guardando..." : (currentProduct ? "Guardar cambios" : "Publicar")}
             </button>
           </div>
         </form>

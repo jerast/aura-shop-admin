@@ -152,11 +152,11 @@ function OrdersPage() {
           </div>
         </div>
 
-        <div className="mb-8 grid grid-cols-2 gap-4 sm:grid-cols-4">
+        <div className="mb-8 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
           {stats.map((stat) => (
-            <div key={stat.label} className="rounded-2xl border border-border bg-card p-4">
-              <p className="text-2xl font-semibold text-foreground">{stat.value}</p>
-              <p className="text-sm text-muted-foreground">{stat.label}</p>
+            <div key={stat.status} className={cn("rounded-xl border p-3 sm:p-4", stat.bg, stat.border)}>
+              <p className={cn("text-xl sm:text-2xl font-semibold", stat.text)}>{stat.value}</p>
+              <p className={cn("text-xs sm:text-sm", stat.text)}>{stat.label}</p>
             </div>
           ))}
         </div>
@@ -182,9 +182,9 @@ function OrdersPage() {
               >
                 <option value="all">Todos los estados</option>
                 <option value="pending">Pendiente</option>
-                <option value="active">Activo</option>
+                <option value="ready">Listo</option>
                 <option value="delivered">Entregado</option>
-                <option value="cancelled">Cancelado</option>
+                <option value="canceled">Cancelado</option>
               </select>
               <ChevronDown className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
             </div>

@@ -1,6 +1,7 @@
 import { useState, useMemo } from "react"
 import { toast } from "sonner"
 import { useShopStore } from '@shop/store/useShop.store'
+import { updateProduct } from '@shop/services/products.services'
 
 function useProducts () {
   const [viewMode, setViewMode] = useState("grid")
@@ -8,8 +9,10 @@ function useProducts () {
   const [selectedCategory, setSelectedCategory] = useState("Todas las categorias")
   const [search, setSearch] = useState("")
   const [editingProduct, setEditingProduct] = useState(null)
+  const [isSaving, setIsSaving] = useState(false)
 
   const products = useShopStore(state => state.products)
+  const setProducts = useShopStore(state => state.setProducts)
 
   const filteredProducts = useMemo(() => {
     const query = search.trim().toLowerCase()
@@ -41,10 +44,26 @@ function useProducts () {
     toast.success("Producto eliminado del listado")
   }
 
-  function handleSaveProduct(payload) {
-    toast.success(editingProduct ? "Producto actualizado" : "Producto creado")
-    setDrawerOpen(false)
-    setEditingProduct(null)
+  async function handleSaveProduct(payload) {
+    setIsSaving(true)
+    
+    try {
+      if (editingProduct) {
+        const updated = await updateProduct(editingProduct.id, payload)
+        if (updated) {
+          setProducts(products.map(p => p.id === editingProduct.id ? updated : p))
+          toast.success("Producto actualizado")
+        }
+      } else {
+        toast.success("Producto creado")
+      }
+    } catch (error) {
+      toast.error("Error al guardar el producto")
+    } finally {
+      setIsSaving(false)
+      setDrawerOpen(false)
+      setEditingProduct(null)
+    }
   }
 
   return {
@@ -53,6 +72,7 @@ function useProducts () {
     selectedCategory,
     search,
     editingProduct,
+    isSaving,
     
     setViewMode,
     setDrawerOpen,

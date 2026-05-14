@@ -18,3 +18,25 @@ export async function getProducts () {
     return []
   }  
 }
+
+export async function updateProduct (id, payload) {
+  try {
+    const { data } = await api.put(`/api/products/${id}`, payload, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    })
+    
+    if (!data.ok) {
+      console.warn(data.message)
+      toast.warning(data.message)
+      return null
+    }
+    
+    return data.product
+  } catch (error) {
+    console.error(error)
+    toast.error('Algo pasó al actualizar el producto, intenta de nuevo.')
+    return null
+  }
+}

@@ -24,21 +24,25 @@ function Sidebar() {
   const logout = useAuthStore(state => state.logout)
   const user = useAuthStore(state => state.user)
 
+  const isOpen = !isMobile || mobileOpen
+
   return (
     <>
-      {/* Mobile menu button */}
-      <button
-        onClick={() => setMobileOpen(true)}
-        className="fixed top-4 left-4 z-50 lg:hidden p-2 rounded-lg bg-card border border-border shadow-sm"
-        aria-label="Abrir menú"
-      >
-        <Menu className="w-5 h-5 text-foreground" />
-      </button>
+      {/* Mobile menu button - solo visible en móvil */}
+      {isMobile && (
+        <button
+          onClick={() => setMobileOpen(true)}
+          className="fixed top-4 left-4 z-50 p-2 rounded-lg bg-card border border-border shadow-sm"
+          aria-label="Abrir menú"
+        >
+          <Menu className="w-5 h-5 text-foreground" />
+        </button>
+      )}
 
       {/* Mobile overlay */}
-      {isMobile && (
+      {isMobile && mobileOpen && (
         <div
-          className="fixed inset-0 bg-foreground/20 backdrop-blur-sm z-40 lg:hidden"
+          className="fixed inset-0 bg-foreground/20 backdrop-blur-sm z-40"
           onClick={() => setMobileOpen(false)}
         />
       )}
@@ -46,14 +50,14 @@ function Sidebar() {
       {/* Sidebar */}
       <aside
         className={cn(
-          isMobile && !mobileOpen && "-translate-x-full",
+          isMobile && !mobileOpen && "translate-x-full",
           "fixed top-0 left-0 z-50 h-screen w-60 bg-sidebar border-r border-sidebar-border flex flex-col transition-transform duration-300 ease-out lg:translate-x-0"
         )}
       >
         {/* Mobile close button */}
         <button
           onClick={() => setMobileOpen(false)}
-          className="absolute top-4 right-4 lg:hidden p-1 rounded-md hover:bg-muted"
+          className="absolute top-4 left-4 lg:hidden p-1 rounded-md hover:bg-muted"
           aria-label="Cerrar menú"
         >
           <X className="w-5 h-5 text-muted-foreground" />

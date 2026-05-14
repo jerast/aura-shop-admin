@@ -41,21 +41,28 @@ function useOrders() {
   }
 
   function computeStats(orders) {
-    const totals = orders.reduce(
-      (acc, order) => {
-        acc.total += 1
-        acc[order.status] = (acc[order.status] || 0) + 1
-        return acc
-      },
-      { total: 0, pending: 0, active: 0, delivered: 0, cancelled: 0 }
-    )
+    const total = orders.length
+    const statusColors = {
+      all: { bg: 'bg-gray-500/10', border: 'border-gray-500/20', text: 'text-gray-600', label: 'Total' },
+      pending: { bg: 'bg-amber-500/10', border: 'border-amber-500/20', text: 'text-amber-600', label: 'Pendientes' },
+      ready: { bg: 'bg-sky-500/10', border: 'border-sky-500/20', text: 'text-sky-600', label: 'Listos' },
+      delivered: { bg: 'bg-emerald-500/10', border: 'border-emerald-500/20', text: 'text-emerald-600', label: 'Entregados' },
+      canceled: { bg: 'bg-rose-500/10', border: 'border-rose-500/20', text: 'text-rose-600', label: 'Cancelados' },
+    }
 
-    return [
-      { label: "Total pedidos", value: totals.total },
-      { label: "Pendientes", value: totals.pending },
-      { label: "Activos", value: totals.active },
-      { label: "Entregados", value: totals.delivered },
-    ]
+    const totals = {
+      all: total,
+      pending: orders.filter(o => o.status === 'pending').length,
+      ready: orders.filter(o => o.status === 'ready').length,
+      delivered: orders.filter(o => o.status === 'delivered').length,
+      canceled: orders.filter(o => o.status === 'canceled').length,
+    }
+
+    return Object.entries(totals).map(([key, value]) => ({
+      ...statusColors[key],
+      value,
+      status: key,
+    }))
   }
 
   return {
