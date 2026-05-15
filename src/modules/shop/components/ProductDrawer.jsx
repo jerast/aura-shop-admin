@@ -16,17 +16,20 @@ const emptyForm = {
 
 function ProductDrawer({ open, onClose, onSave, editingProduct, isSaving }) {
   const [form, setForm] = useState(emptyForm)
+  const [errors, setErrors] = useState({})
   const [imageFile, setImageFile] = useState(null)
   const [imagePreview, setImagePreview] = useState(null)
+  const [isDragging, setIsDragging] = useState(false)
   const fileInputRef = useRef(null)
   const categories = useShopStore(state => state.categories)
   const currentProduct = editingProduct
 
   useEffect(() => {
     if (currentProduct) {
+      const categoryId = categories.find(c => c.name === currentProduct.category)?.id || ""
       setForm({
         name: currentProduct.name,
-        category: currentProduct.category,
+        category: categoryId,
         description: currentProduct.description || "",
         wholesale: currentProduct.prices?.wholesale ?? "",
         retail: currentProduct.prices?.retail ?? "",
@@ -42,7 +45,8 @@ function ProductDrawer({ open, onClose, onSave, editingProduct, isSaving }) {
     setForm(emptyForm)
     setImageFile(null)
     setImagePreview(null)
-  }, [currentProduct, open])
+    setErrors({})
+  }, [currentProduct, open, categories])
 
   if (!open) return null
 
@@ -53,27 +57,64 @@ function ProductDrawer({ open, onClose, onSave, editingProduct, isSaving }) {
   function handleImageChange(e) {
     const file = e.target.files?.[0]
     if (!file) return
+    processFile(file)
+  }
 
+  function processFile(file) {
     if (!file.type.startsWith('image/')) {
       toast.error('Selecciona un archivo de imagen válido')
       return
     }
-
     setImageFile(file)
     setImagePreview(URL.createObjectURL(file))
+  }
+
+  function handleDragOver(e) {
+    e.preventDefault()
+    setIsDragging(true)
+  }
+
+  function handleDragLeave(e) {
+    e.preventDefault()
+    setIsDragging(false)
+  }
+
+  function handleDrop(e) {
+    e.preventDefault()
+    setIsDragging(false)
+    const file = e.dataTransfer.files?.[0]
+    if (file) {
+      processFile(file)
+    }
   }
 
   function handleSave(event) {
     event.preventDefault()
 
+    const newErrors = {}
+    if (!form.name.trim()) newErrors.name = true
+    if (!form.category) newErrors.category = true
+    if (!form.wholesale || form.wholesale <= 0) newErrors.wholesale = true
+    if (!form.retail || form.retail <= 0) newErrors.retail = true
+    if (!form.sku.trim()) newErrors.sku = true
+    if (form.stock === "" || form.stock < 0) newErrors.stock = true
+
+    if (Object.keys(newErrors).length > 0) {
+      setErrors(newErrors)
+      toast.error("Por favor completa todos los campos requeridos")
+      return
+    }
+
+    setErrors({})
+
     const payload = new FormData()
-    payload.append('name', form.name || "Nuevo producto")
+    payload.append('name', form.name.trim())
     payload.append('category', form.category)
     payload.append('description', form.description || "")
-    payload.append('prices[wholesale]', form.wholesale || 0)
-    payload.append('prices[retail]', form.retail || 0)
-    payload.append('stock', form.stock || 0)
-    payload.append('reference', form.sku || "")
+    payload.append('wholesale', Number(form.wholesale))
+    payload.append('retail', Number(form.retail))
+    payload.append('stock', Number(form.stock))
+    payload.append('reference', form.sku.trim())
 
     if (imageFile) {
       payload.append('image', imageFile)
@@ -101,13 +142,21 @@ function ProductDrawer({ open, onClose, onSave, editingProduct, isSaving }) {
             <div className="space-y-4">
 
               <div>
-                <label className="mb-2 block text-sm font-medium text-foreground">Nombre del Producto</label>
+                <label className="mb-2 block text-sm font-medium text-foreground">
+                  Nombre del Producto <span className="text-destructive">*</span>
+                </label>
                 <input
                   type="text"
                   value={form.name}
-                  onChange={(event) => updateField("name", event.target.value)}
+                  onChange={(event) => {
+                    updateField("name", event.target.value)
+                    setErrors(e => ({ ...e, name: false }))
+                  }}
                   placeholder="Ej: Vestido Floral Midi"
-                  className="w-full rounded-lg border border-input bg-background px-4 py-3 text-foreground transition-all placeholder:text-muted-foreground focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
+                  className={cn(
+                    "w-full rounded-lg border bg-background px-4 py-3 text-foreground transition-all placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/20",
+                    errors.name ? "border-destructive focus:border-destructive focus:ring-destructive/20" : "border-input focus:border-primary"
+                  )}
                 />
               </div>
 
@@ -123,16 +172,24 @@ function ProductDrawer({ open, onClose, onSave, editingProduct, isSaving }) {
               </div>
 
               <div>
-                <label className="mb-2 block text-sm font-medium text-foreground">Categoria</label>
+                <label className="mb-2 block text-sm font-medium text-foreground">
+                  Categoria <span className="text-destructive">*</span>
+                </label>
                 <div className="relative">
                   <select
                     value={form.category}
-                    onChange={(event) => updateField("category", event.target.value)}
-                    className="w-full appearance-none rounded-lg border border-input bg-background px-4 py-3 text-foreground transition-all focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
+                    onChange={(event) => {
+                      updateField("category", event.target.value)
+                      setErrors(e => ({ ...e, category: false }))
+                    }}
+                    className={cn(
+                      "w-full appearance-none rounded-lg border bg-background px-4 py-3 text-foreground transition-all focus:outline-none focus:ring-2 focus:ring-primary/20",
+                      errors.category ? "border-destructive focus:border-destructive focus:ring-destructive/20" : "border-input focus:border-primary"
+                    )}
                   >
                     <option value="">Seleccione una</option>
                     {categories.map((cat) => (
-                      <option key={cat.id} value={cat.name}>{cat.name}</option>
+                      <option key={cat.id} value={cat.id}>{cat.name}</option>
                     ))}
                   </select>
                   <ChevronDown className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
@@ -166,15 +223,22 @@ function ProductDrawer({ open, onClose, onSave, editingProduct, isSaving }) {
                 </button>
               </div>
             ) : (
-              <button
-                type="button"
+              <div
+                onDragOver={handleDragOver}
+                onDragLeave={handleDragLeave}
+                onDrop={handleDrop}
                 onClick={() => fileInputRef.current?.click()}
-                className="w-full cursor-pointer rounded-xl border-2 border-dashed border-border p-8 text-center transition-colors hover:border-primary/50"
+                className={cn(
+                  "w-full cursor-pointer rounded-xl border-2 border-dashed p-8 text-center transition-all",
+                  isDragging 
+                    ? "border-primary bg-primary/5 scale-[1.02]" 
+                    : "border-border hover:border-primary/50 hover:bg-muted/30"
+                )}
               >
-                <Upload className="mx-auto mb-3 h-8 w-8 text-muted-foreground" />
-                <p className="text-sm font-medium text-foreground">Arrastra imagen aqui</p>
+                <Upload className={cn("mx-auto mb-3 h-8 w-8 transition-colors", isDragging ? "text-primary" : "text-muted-foreground")} />
+                <p className="text-sm font-medium text-foreground">Arrastra la imagen aqui</p>
                 <p className="mt-1 text-xs text-muted-foreground">o haz clic para seleccionar</p>
-              </button>
+              </div>
             )}
           </section>
 
@@ -182,28 +246,44 @@ function ProductDrawer({ open, onClose, onSave, editingProduct, isSaving }) {
             <h3 className="mb-4 text-sm font-semibold uppercase tracking-wider text-foreground">Precio</h3>
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="mb-2 block text-sm font-medium text-foreground">Venta (wholesale)</label>
-                <div className="relative">
-                  <span className="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground">COP</span>
-                  <input
-                    type="number"
-                    value={form.wholesale}
-                    onChange={(event) => updateField("wholesale", event.target.value)}
-                    placeholder="0"
-                    className="w-full rounded-lg border border-input bg-background py-3 pl-14 pr-4 text-foreground transition-all placeholder:text-muted-foreground focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
-                  />
-                </div>
-              </div>
-              <div>
-                <label className="mb-2 block text-sm font-medium text-foreground">Con descuento (retail)</label>
+                <label className="mb-2 block text-sm font-medium text-foreground">
+                  Precio normal <span className="text-destructive">*</span>
+                </label>
                 <div className="relative">
                   <span className="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground">COP</span>
                   <input
                     type="number"
                     value={form.retail}
-                    onChange={(event) => updateField("retail", event.target.value)}
+                    onChange={(event) => {
+                      updateField("retail", event.target.value)
+                      setErrors(e => ({ ...e, retail: false }))
+                    }}
                     placeholder="0"
-                    className="w-full rounded-lg border border-input bg-background py-3 pl-14 pr-4 text-foreground transition-all placeholder:text-muted-foreground focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
+                    className={cn(
+                      "w-full rounded-lg border bg-background py-3 pl-14 pr-4 text-foreground transition-all placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/20",
+                      errors.retail ? "border-destructive focus:border-destructive focus:ring-destructive/20" : "border-input focus:border-primary"
+                    )}
+                  />
+                </div>
+              </div>
+              <div>
+                <label className="mb-2 block text-sm font-medium text-foreground">
+                  Precio con descuento <span className="text-destructive">*</span>
+                </label>
+                <div className="relative">
+                  <span className="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground">COP</span>
+                  <input
+                    type="number"
+                    value={form.wholesale}
+                    onChange={(event) => {
+                      updateField("wholesale", event.target.value)
+                      setErrors(e => ({ ...e, wholesale: false }))
+                    }}
+                    placeholder="0"
+                    className={cn(
+                      "w-full rounded-lg border bg-background py-3 pl-14 pr-4 text-foreground transition-all placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/20",
+                      errors.wholesale ? "border-destructive focus:border-destructive focus:ring-destructive/20" : "border-input focus:border-primary"
+                    )}
                   />
                 </div>
               </div>
@@ -214,23 +294,39 @@ function ProductDrawer({ open, onClose, onSave, editingProduct, isSaving }) {
             <h3 className="mb-4 text-sm font-semibold uppercase tracking-wider text-foreground">Inventario</h3>
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="mb-2 block text-sm font-medium text-foreground">Referencia</label>
+                <label className="mb-2 block text-sm font-medium text-foreground">
+                  Referencia <span className="text-destructive">*</span>
+                </label>
                 <input
                   type="text"
                   value={form.sku}
-                  onChange={(event) => updateField("sku", event.target.value)}
+                  onChange={(event) => {
+                    updateField("sku", event.target.value)
+                    setErrors(e => ({ ...e, sku: false }))
+                  }}
                   placeholder="9628-002"
-                  className="w-full rounded-lg border border-input bg-background px-3 py-3 text-foreground transition-all placeholder:text-muted-foreground focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
+                  className={cn(
+                    "w-full rounded-lg border bg-background px-3 py-3 text-foreground transition-all placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/20",
+                    errors.sku ? "border-destructive focus:border-destructive focus:ring-destructive/20" : "border-input focus:border-primary"
+                  )}
                 />
               </div>
               <div>
-                <label className="mb-2 block text-sm font-medium text-foreground">Cantidad</label>
+                <label className="mb-2 block text-sm font-medium text-foreground">
+                  Cantidad <span className="text-destructive">*</span>
+                </label>
                 <input
                   type="number"
                   value={form.stock}
-                  onChange={(event) => updateField("stock", event.target.value)}
+                  onChange={(event) => {
+                    updateField("stock", event.target.value)
+                    setErrors(e => ({ ...e, stock: false }))
+                  }}
                   placeholder="0"
-                  className="w-full rounded-lg border border-input bg-background px-4 py-3 text-foreground transition-all placeholder:text-muted-foreground focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
+                  className={cn(
+                    "w-full rounded-lg border bg-background px-4 py-3 text-foreground transition-all placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/20",
+                    errors.stock ? "border-destructive focus:border-destructive focus:ring-destructive/20" : "border-input focus:border-primary"
+                  )}
                 />
               </div>
             </div>

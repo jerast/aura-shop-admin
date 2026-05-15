@@ -24,12 +24,12 @@ function Sidebar() {
   const logout = useAuthStore(state => state.logout)
   const user = useAuthStore(state => state.user)
 
-  const isOpen = !isMobile || mobileOpen
+  const isOpen = isMobile ? mobileOpen : true
 
   return (
     <>
       {/* Mobile menu button - solo visible en móvil */}
-      {isMobile && (
+      {isMobile && !mobileOpen && (
         <button
           onClick={() => setMobileOpen(true)}
           className="fixed top-4 left-4 z-50 p-2 rounded-lg bg-card border border-border shadow-sm"
@@ -50,8 +50,8 @@ function Sidebar() {
       {/* Sidebar */}
       <aside
         className={cn(
-          isMobile && !mobileOpen && "translate-x-full",
-          "fixed top-0 left-0 z-50 h-screen w-60 bg-sidebar border-r border-sidebar-border flex flex-col transition-transform duration-300 ease-out lg:translate-x-0"
+          "fixed top-0 left-0 z-50 h-screen w-60 bg-sidebar border-r border-sidebar-border flex flex-col transition-transform duration-300 ease-out",
+          isMobile && !mobileOpen && "-translate-x-full"
         )}
       >
         {/* Mobile close button */}

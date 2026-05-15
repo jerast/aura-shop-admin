@@ -1,7 +1,7 @@
 import { useState, useMemo } from "react"
 import { toast } from "sonner"
 import { useShopStore } from '@shop/store/useShop.store'
-import { updateProduct } from '@shop/services/products.services'
+import { updateProduct, createProduct } from '@shop/services/products.services'
 
 function useProducts () {
   const [viewMode, setViewMode] = useState("grid")
@@ -18,6 +18,8 @@ function useProducts () {
     const query = search.trim().toLowerCase()
 
     return products.filter((product) => {
+      if (product.status === false) return false
+
       const matchesSearch =
         !query ||
         product.name?.toLowerCase().includes(query) ||
@@ -50,12 +52,18 @@ function useProducts () {
     try {
       if (editingProduct) {
         const updated = await updateProduct(editingProduct.id, payload)
+        console.log(updated);
+        
         if (updated) {
           setProducts(products.map(p => p.id === editingProduct.id ? updated : p))
           toast.success("Producto actualizado")
         }
       } else {
-        toast.success("Producto creado")
+        const created = await createProduct(payload)
+        if (created) {
+          setProducts([created, ...products])
+          toast.success("Producto creado")
+        }
       }
     } catch (error) {
       toast.error("Error al guardar el producto")

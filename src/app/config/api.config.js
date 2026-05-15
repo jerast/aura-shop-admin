@@ -7,7 +7,6 @@ const api = axios.create({
 api.interceptors.request.use( config => {
    config.headers = {
       ...config.headers,
-      'x-token': localStorage.getItem('aura-admin-user')
    };
 
    return config;
