@@ -19,6 +19,7 @@ function ProductDrawer({ open, onClose, onSave, editingProduct, isSaving }) {
   const [errors, setErrors] = useState({})
   const [imageFile, setImageFile] = useState(null)
   const [imagePreview, setImagePreview] = useState(null)
+  const [imageChanged, setImageChanged] = useState(false)
   const [isDragging, setIsDragging] = useState(false)
   const fileInputRef = useRef(null)
   const categories = useShopStore(state => state.categories)
@@ -45,6 +46,7 @@ function ProductDrawer({ open, onClose, onSave, editingProduct, isSaving }) {
     setForm(emptyForm)
     setImageFile(null)
     setImagePreview(null)
+    setImageChanged(false)
     setErrors({})
   }, [currentProduct, open, categories])
 
@@ -67,6 +69,7 @@ function ProductDrawer({ open, onClose, onSave, editingProduct, isSaving }) {
     }
     setImageFile(file)
     setImagePreview(URL.createObjectURL(file))
+    setImageChanged(true)
   }
 
   function handleDragOver(e) {
@@ -116,7 +119,7 @@ function ProductDrawer({ open, onClose, onSave, editingProduct, isSaving }) {
     payload.append('stock', Number(form.stock))
     payload.append('reference', form.sku.trim())
 
-    if (imageFile) {
+    if (imageChanged && imageFile) {
       payload.append('image', imageFile)
     }
 
