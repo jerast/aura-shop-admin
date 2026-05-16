@@ -47,7 +47,7 @@ function CustomerDetail({ customer, onClose }) {
             <div className="flex items-center justify-center gap-2 mt-2">
               <span className={cn(
                 "w-2 h-2 rounded-full",
-                customer.status ? "bg-[--status-delivered-text]" : "bg-muted-foreground"
+                customer.status ? "bg-emerald-500" : "bg-muted-foreground"
               )} />
               <span className="text-sm text-muted-foreground">
                 {customer.status ? "Activo" : "Inactivo"}
@@ -64,35 +64,20 @@ function CustomerDetail({ customer, onClose }) {
               <Phone className="w-4 h-4 text-primary" />
               <span className="text-sm text-foreground">{customer.phone}</span>
             </div>
-          </div>
-
-          <div className="grid grid-cols-3 gap-3 mb-6">
-            <div className="text-center p-4 rounded-xl bg-secondary">
-              <p className="text-lg font-semibold text-foreground">
-                {customer.dniType} {customer.dniNumber}
-              </p>
-              <p className="text-xs text-muted-foreground">Identificación</p>
+            <div className="flex items-center gap-3 p-3 rounded-lg bg-muted/50">
+              <span className="w-4 h-4 text-primary flex items-center justify-center text-xs font-bold">ID</span>
+              <span className="text-sm text-foreground">{customer.dniType} {customer.dniNumber}</span>
             </div>
-            <div className="text-center p-4 rounded-xl bg-secondary">
-              <p className="text-lg font-semibold text-foreground">
+            <div className="flex items-center gap-3 p-3 rounded-lg bg-muted/50">
+              <span className="w-4 h-4 text-primary flex items-center justify-center text-xs font-bold">G</span>
+              <span className="text-sm text-foreground">
                 {customer.gender === 'M' ? 'Masculino' : customer.gender === 'F' ? 'Femenino' : '-'}
-              </p>
-              <p className="text-xs text-muted-foreground">Género</p>
+              </span>
             </div>
-            <div className="text-center p-4 rounded-xl bg-secondary">
-              <Calendar className="w-5 h-5 text-primary mx-auto mb-2" />
-              <p className="text-xs text-muted-foreground">Cumpleaños</p>
-              <p className="text-sm font-medium text-foreground">{formatDate(customer.birthday)}</p>
+            <div className="flex items-center gap-3 p-3 rounded-lg bg-muted/50">
+              <Calendar className="w-4 h-4 text-primary" />
+              <span className="text-sm text-foreground">{formatDate(customer.birthday)}</span>
             </div>
-          </div>
-
-          <div>
-            <h4 className="text-sm font-semibold text-foreground uppercase tracking-wider mb-3">Notas Internas</h4>
-            <textarea
-              placeholder="Añade notas sobre este cliente..."
-              rows={3}
-              className="w-full px-4 py-3 rounded-lg border border-input bg-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all resize-none text-sm"
-            />
           </div>
         </div>
       </div>
