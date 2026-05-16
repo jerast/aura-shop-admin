@@ -211,8 +211,8 @@ function ProductDrawer({ open, onClose, onSave, editingProduct, isSaving }) {
               className="hidden"
             />
             {imagePreview ? (
-              <div className="relative rounded-xl overflow-hidden border border-border">
-                <img src={imagePreview} alt="Preview" className="w-full aspect-square object-cover" />
+              <div className="relative rounded-xl overflow-hidden border border-border w-60 h-60 mx-auto">
+                <img src={imagePreview} alt="Preview" className="w-full h-full object-cover" />
                 <button
                   type="button"
                   onClick={() => {
