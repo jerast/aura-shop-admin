@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { Download, Search, Users, UserPlus, X, MapPin, Mail, Phone, Calendar } from 'lucide-react'
+import { Download, Search, Users, UserPlus, UserCheck, X, MapPin, Mail, Phone, Calendar } from 'lucide-react'
 import cn from '@shared/utils/className'
 import { getUsers } from '@customers/services/users.services'
 import { useUsersStore } from '@customers/store/useUsers.store'
@@ -118,14 +118,14 @@ function CustomersPage() {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-8">
         {stats.map((stat) => (
           <div key={stat.label} className="bg-card rounded-2xl p-5 border border-border">
             <div className="flex items-center gap-3">
               <div className="p-2.5 rounded-xl bg-secondary">
                 {stat.label.includes("Total") && <Users className="w-5 h-5 text-primary" strokeWidth={1.5} />}
                 {stat.label.includes("mes") && <UserPlus className="w-5 h-5 text-primary" strokeWidth={1.5} />}
-                {stat.label === "Activos" && <span className="w-5 h-5 rounded-full bg-[--status-delivered] inline-block" />}
+                {stat.label === "Activos" && <UserCheck className="w-5 h-5 text-primary" strokeWidth={1.5} />}
               </div>
               <div>
                 <p className="text-2xl font-semibold text-foreground">{stat.value}</p>

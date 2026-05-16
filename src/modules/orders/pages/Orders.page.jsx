@@ -16,10 +16,10 @@ const statusConfig = {
 }
 
 const statusColors = {
-  pending: "bg-amber-500 hover:bg-amber-600",
-  ready: "bg-sky-500 hover:bg-sky-600",
-  delivered: "bg-emerald-500 hover:bg-emerald-600",
-  canceled: "bg-rose-500 hover:bg-rose-600",
+  pending: "bg-amber-100 text-amber-700 border border-amber-200 hover:bg-amber-200",
+  ready: "bg-sky-100 text-sky-700 border border-sky-200 hover:bg-sky-200",
+  delivered: "bg-emerald-100 text-emerald-700 border border-emerald-200 hover:bg-emerald-200",
+  canceled: "bg-rose-100 text-rose-700 border border-rose-200 hover:bg-rose-200",
 }
 
 const dateFilterOptions = [
@@ -94,7 +94,7 @@ function OrderDetail({ order, onClose, getUserName, getProductName, getProductIm
                   onClick={() => onUpdateStatus(order._id, status)}
                   disabled={order.status === status}
                   className={cn(
-                    "rounded-lg px-3 py-2 text-xs font-medium text-white transition-colors disabled:opacity-40 disabled:cursor-not-allowed",
+                    "rounded-lg px-3 py-2 text-xs font-medium transition-colors disabled:opacity-40 disabled:cursor-not-allowed",
                     statusColors[status]
                   )}
                 >
