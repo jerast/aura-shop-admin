@@ -63,3 +63,21 @@ export async function createProduct (payload) {
     return null
   }
 }
+
+export async function deleteProduct (id) {
+  try {
+    const { data } = await api.delete(`/api/products/${id}`)
+    
+    if (!data.ok) {
+      console.warn(data.message)
+      toast.warning(data.message)
+      return false
+    }
+    
+    return true
+  } catch (error) {
+    console.error(error)
+    toast.error('Algo pasó al eliminar el producto, intenta de nuevo.')
+    return false
+  }
+}

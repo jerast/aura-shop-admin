@@ -1,7 +1,7 @@
 import { useState, useMemo } from "react"
 import { toast } from "sonner"
 import { useShopStore } from '@shop/store/useShop.store'
-import { updateProduct, createProduct } from '@shop/services/products.services'
+import { updateProduct, createProduct, deleteProduct } from '@shop/services/products.services'
 
 function useProducts () {
   const [viewMode, setViewMode] = useState("grid")
@@ -42,8 +42,16 @@ function useProducts () {
     setDrawerOpen(true)
   }
 
-  function handleDelete(productId) {
-    toast.success("Producto eliminado del listado")
+  async function handleDelete(productId) {
+    const confirmed = window.confirm("¿Estás seguro de que deseas eliminar este producto?")
+    
+    if (!confirmed) return
+    
+    const success = await deleteProduct(productId)
+    if (success) {
+      setProducts(products.filter(p => p.id !== productId))
+      toast.success("Producto eliminado")
+    }
   }
 
   async function handleSaveProduct(payload) {
@@ -52,7 +60,6 @@ function useProducts () {
     try {
       if (editingProduct) {
         const updated = await updateProduct(editingProduct.id, payload)
-        console.log(updated);
         
         if (updated) {
           setProducts(products.map(p => p.id === editingProduct.id ? updated : p))

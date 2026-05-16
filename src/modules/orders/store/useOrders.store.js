@@ -4,5 +4,5 @@ export const useOrdersStore = create((set) => ({
   orders: [],
   isLoading: false,
   setOrders: (orders) => set({ orders }),
-  toggleLoading: (isLoading) => set({ isLoading }),
+  setLoading: (isLoading) => set({ isLoading }),
 }))

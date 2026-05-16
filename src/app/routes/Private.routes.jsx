@@ -33,11 +33,11 @@ function PrivateRoutes () {
     <MainLayout>
       <Switch>
         <Route path="/">
-          <Redirect to="/products" />
+          <Redirect to="/orders" />
         </Route>
         {/* <Route path="/dashboard" component={DashboardPage} /> */}
-        <Route path="/products" component={ProductsPage} />
         <Route path="/orders" component={OrdersPage} />
+        <Route path="/products" component={ProductsPage} />
         <Route path="/customers" component={CustomersPage} />
         {/* <Route path="/discounts" component={DiscountsPage} /> */}
         {/* <Route path="/settings" component={SettingsPage} /> */}

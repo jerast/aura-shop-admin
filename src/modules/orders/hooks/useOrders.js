@@ -41,9 +41,7 @@ function useOrders() {
   }
 
   function computeStats(orders) {
-    const total = orders.length
     const statusColors = {
-      all: { bg: 'bg-gray-500/10', border: 'border-gray-500/20', text: 'text-gray-600', label: 'Total' },
       pending: { bg: 'bg-amber-500/10', border: 'border-amber-500/20', text: 'text-amber-600', label: 'Pendientes' },
       ready: { bg: 'bg-sky-500/10', border: 'border-sky-500/20', text: 'text-sky-600', label: 'Listos' },
       delivered: { bg: 'bg-emerald-500/10', border: 'border-emerald-500/20', text: 'text-emerald-600', label: 'Entregados' },
@@ -51,7 +49,6 @@ function useOrders() {
     }
 
     const totals = {
-      all: total,
       pending: orders.filter(o => o.status === 'pending').length,
       ready: orders.filter(o => o.status === 'ready').length,
       delivered: orders.filter(o => o.status === 'delivered').length,

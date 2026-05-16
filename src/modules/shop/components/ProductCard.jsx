@@ -3,16 +3,16 @@ import cn from "@shared/utils/className";
 import { Edit2, Trash2 } from "lucide-react"
 
 function getStatus(product) {
-  if (!product.state) return "out"
+  if (!product.status) return "out"
   if (product.stock <= 0) return "out"
   if (product.stock < 10) return "low"
   return "active"
 }
 
 const statusConfig = {
-  active: { label: "En stock", className: "bg-[--status-delivered] text-[--status-delivered-text]" },
-  low: { label: "Stock bajo", className: "bg-[--status-processing] text-[--status-processing-text]" },
-  out: { label: "Agotado", className: "bg-[--status-cancelled] text-[--status-cancelled-text]" },
+  active: { label: "En stock", className: "bg-emerald-100 text-emerald-700" },
+  low: { label: "Stock bajo", className: "bg-amber-100 text-amber-700" },
+  out: { label: "Agotado", className: "bg-rose-100 text-rose-700" },
 }
 
 function ProductCard ({ product, viewMode, handleEdit, handleDelete }) {
@@ -72,9 +72,9 @@ function ProductCard ({ product, viewMode, handleEdit, handleDelete }) {
             <span
               className={cn(
                 "h-2 w-2 rounded-full",
-                status === "active" && "bg-[--status-delivered-text]",
-                status === "low" && "bg-[--status-processing-text]",
-                status === "out" && "bg-[--status-cancelled-text]"
+                status === "active" && "bg-emerald-600",
+                status === "low" && "bg-amber-600",
+                status === "out" && "bg-rose-600"
               )}
             />
             <span className="text-xs text-muted-foreground">{statusConfig[status].label}</span>
