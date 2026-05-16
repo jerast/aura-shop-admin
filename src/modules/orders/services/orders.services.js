@@ -18,3 +18,28 @@ export async function getOrders () {
     return []
   }
 }
+
+export async function updateOrderStatus (id, status) {
+  const endpoints = {
+    pending: `/api/orders/pending/${id}`,
+    ready: `/api/orders/confirm/${id}`,
+    delivered: `/api/orders/deliver/${id}`,
+    canceled: `/api/orders/cancel/${id}`,
+  }
+
+  try {
+    const { data } = await api.put(endpoints[status])
+
+    if (!data.ok) {
+      console.warn(data.message)
+      toast.warning(data.message)
+      return null
+    }
+
+    return data.order
+  } catch (error) {
+    console.error(error)
+    toast.error('Algo pasó al actualizar el estado, intenta de nuevo.')
+    return null
+  }
+}

@@ -1,12 +1,13 @@
-import { useEffect } from 'react'
-import { Search, ChevronDown, Eye, X } from 'lucide-react'
+import { useEffect, useState } from 'react'
+import { Search, ChevronDown, Eye, X, Loader2 } from 'lucide-react'
 import cn from '@shared/utils/className'
-import { getOrders } from '@orders/services/orders.services'
+import { getOrders, updateOrderStatus as updateOrderStatusApi } from '@orders/services/orders.services'
 import { useOrdersStore } from '@orders/store/useOrders.store'
 import { useUsersStore } from '@customers/store/useUsers.store'
 import { useShopStore } from '@shop/store/useShop.store'
 import useOrders from '@orders/hooks/useOrders'
 import Skeleton from '@shared/ui/Skeleton'
+import { toast } from 'sonner'
 
 const statusConfig = {
   pending: { label: "Pendiente", className: "bg-amber-100 text-amber-700" },
@@ -37,7 +38,7 @@ function formatDate(dateStr) {
   })
 }
 
-function OrderDetail({ order, onClose, getUserName, getProductName, getProductImage, onUpdateStatus }) {
+function OrderDetail({ order, onClose, getUserName, getProductName, getProductImage, onUpdateStatus, statusLoading }) {
   if (!order) return null
 
   const totalItems = order.list?.reduce((acc, item) => acc + item.count, 0) || 0
@@ -92,13 +93,17 @@ function OrderDetail({ order, onClose, getUserName, getProductName, getProductIm
                   key={status}
                   type="button"
                   onClick={() => onUpdateStatus(order._id, status)}
-                  disabled={order.status === status}
+                  disabled={order.status === status || statusLoading}
                   className={cn(
-                    "rounded-lg px-3 py-2 text-xs font-medium transition-colors disabled:opacity-40 disabled:cursor-not-allowed",
+                    "rounded-lg px-3 py-2 text-xs font-medium transition-colors disabled:opacity-40 disabled:cursor-not-allowed flex items-center justify-center gap-2",
                     statusColors[status]
                   )}
                 >
-                  {config.label}
+                  {statusLoading === status ? (
+                    <Loader2 className="h-3 w-3 animate-spin" />
+                  ) : (
+                    config.label
+                  )}
                 </button>
               ))}
             </div>
@@ -158,6 +163,7 @@ function OrdersPage() {
   const setLoading = useOrdersStore(state => state.setLoading)
   const users = useUsersStore(state => state.users)
   const products = useShopStore(state => state.products)
+  const [statusLoading, setStatusLoading] = useState(null)
 
   function getUserName(userId) {
     const user = users.find(u => u.id === userId)
@@ -174,10 +180,19 @@ function OrdersPage() {
     return product?.image || null
   }
 
-  function updateOrderStatus(orderId, newStatus) {
-    setOrders(orders.map(order => 
-      order._id === orderId ? { ...order, status: newStatus } : order
-    ))
+  async function updateOrderStatus(orderId, newStatus) {
+    setStatusLoading(newStatus)
+    const updated = await updateOrderStatusApi(orderId, newStatus)
+    if (updated) {
+      setOrders(orders.map(order => 
+        order._id === orderId ? { ...order, status: newStatus } : order
+      ))
+      if (selectedOrder?._id === orderId) {
+        setSelectedOrder({ ...selectedOrder, status: newStatus })
+      }
+      toast.success(`Pedido marcado como ${statusConfig[newStatus]?.label}`)
+    }
+    setStatusLoading(null)
   }
 
   const {
@@ -359,6 +374,7 @@ function OrdersPage() {
         getProductName={getProductName}
         getProductImage={getProductImage}
         onUpdateStatus={updateOrderStatus}
+        statusLoading={statusLoading}
       />
     </>
   )
