@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { Search, ChevronDown, Eye, X, Loader2 } from 'lucide-react'
+import { Search, ChevronDown, Eye, X, Loader2, RotateCcw } from 'lucide-react'
 import cn from '@shared/utils/className'
 import { getOrders, updateOrderStatus as updateOrderStatusApi } from '@orders/services/orders.services'
 import { useOrdersStore } from '@orders/store/useOrders.store'
@@ -24,6 +24,7 @@ const statusColors = {
 }
 
 const dateFilterOptions = [
+  { value: "all", label: "Desde siempre" },
   { value: "7", label: "Últimos 7 días" },
   { value: "30", label: "Últimos 30 días" },
   { value: "month", label: "Este mes" },
@@ -208,14 +209,12 @@ function OrdersPage() {
     computeStats,
   } = useOrders()
 
-  useEffect(() => {
-    (async () => {
-      setLoading(true)
-      const data = await getOrders()
-      setOrders(data)
-      setLoading(false)
-    })()
-  }, [])
+  async function handleLoadOrders() {
+    setLoading(true)
+    const data = await getOrders()
+    setOrders(data)
+    setLoading(false)
+  }
 
   const filteredOrders = filterOrders(orders, getUserName)
   const stats = computeStats(orders)
@@ -228,6 +227,15 @@ function OrdersPage() {
             <h1 className="font-serif text-3xl font-semibold text-foreground">Pedidos</h1>
             <p className="mt-1 text-muted-foreground">Gestiona todos los pedidos de tu tienda</p>
           </div>
+          <button
+            type="button"
+            onClick={handleLoadOrders }
+            disabled={isLoading}
+            className="inline-flex items-center gap-2 rounded-lg border border-border px-4 py-2 text-sm font-medium text-foreground transition-colors hover:bg-muted disabled:opacity-50"
+          >
+            <RotateCcw className={cn("h-4 w-4", isLoading && "animate-spin")} />
+            Recargar
+          </button>
         </div>
 
         <div className="mb-8 grid grid-cols-2 gap-3 sm:grid-cols-4">

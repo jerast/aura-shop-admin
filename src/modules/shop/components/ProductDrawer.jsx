@@ -307,7 +307,7 @@ function ProductDrawer({ open, onClose, onSave, editingProduct, isSaving }) {
                     updateField("sku", event.target.value)
                     setErrors(e => ({ ...e, sku: false }))
                   }}
-                  placeholder="9628-002"
+                  placeholder=""
                   className={cn(
                     "w-full rounded-lg border bg-background px-3 py-3 text-foreground transition-all placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/20",
                     errors.sku ? "border-destructive focus:border-destructive focus:ring-destructive/20" : "border-input focus:border-primary"

@@ -3,7 +3,7 @@ import { useMemo, useState } from 'react'
 function useOrders() {
   const [search, setSearch] = useState("")
   const [statusFilter, setStatusFilter] = useState("all")
-  const [dateFilter, setDateFilter] = useState("7")
+  const [dateFilter, setDateFilter] = useState("all")
   const [selectedOrder, setSelectedOrder] = useState(null)
 
   function filterOrders(orders, getUserName) {
@@ -18,7 +18,9 @@ function useOrders() {
       const matchesStatus = statusFilter === "all" || order.status === statusFilter
 
       let matchesDate = true
-      if (dateFilter === "7") {
+      if (dateFilter === "all") {
+        matchesDate = true
+      } else if (dateFilter === "7") {
         const limit = new Date()
         limit.setDate(limit.getDate() - 7)
         matchesDate = new Date(order.date) >= limit
