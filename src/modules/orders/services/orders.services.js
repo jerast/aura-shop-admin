@@ -3,7 +3,7 @@ import api from "@app/config/api.config"
 
 export async function getOrders () {
   try {
-    const { data } = await api.get(`/api/orders`)
+    const { data } = await api.get(`/orders`)
 
     if (!data.ok) {
       console.warn(data.message)
@@ -21,10 +21,10 @@ export async function getOrders () {
 
 export async function updateOrderStatus (id, status) {
   const endpoints = {
-    pending: `/api/orders/pending/${id}`,
-    ready: `/api/orders/confirm/${id}`,
-    delivered: `/api/orders/deliver/${id}`,
-    canceled: `/api/orders/cancel/${id}`,
+    pending: `/orders/pending/${id}`,
+    ready: `/orders/confirm/${id}`,
+    delivered: `/orders/deliver/${id}`,
+    canceled: `/orders/cancel/${id}`,
   }
 
   try {

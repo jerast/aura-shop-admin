@@ -3,7 +3,7 @@ import api from "@app/config/api.config"
 
 export async function getCategories () {
   try {
-    const { data } = await api.get(`/api/categories`)
+    const { data } = await api.get(`/categories`)
     
     if (!data.ok) {
       console.warn(data.message)

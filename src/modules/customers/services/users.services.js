@@ -3,7 +3,7 @@ import api from "@app/config/api.config"
 
 export async function getUsers() {
   try {
-    const { data } = await api.get(`/api/users`)
+    const { data } = await api.get(`/users`)
 
     if (!data.ok) {
       console.warn(data.message)

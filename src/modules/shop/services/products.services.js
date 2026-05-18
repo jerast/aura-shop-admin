@@ -3,7 +3,7 @@ import api from "@app/config/api.config"
 
 export async function getProducts () {
   try {
-    const { data } = await api.get(`/api/products`)
+    const { data } = await api.get(`/products`)
     
     if (!data.ok) {
       console.warn(data.message)
@@ -21,7 +21,7 @@ export async function getProducts () {
 
 export async function updateProduct (id, payload) {
   try {
-    const { data } = await api.put(`/api/products/${id}`, payload, {
+    const { data } = await api.put(`/products/${id}`, payload, {
       headers: {
         'Content-Type': 'multipart/form-data',
       },
@@ -32,7 +32,6 @@ export async function updateProduct (id, payload) {
       toast.warning(data.message)
       return null
     }
-    console.log(data.product);
     
     return data.product
   } catch (error) {
@@ -44,7 +43,7 @@ export async function updateProduct (id, payload) {
 
 export async function createProduct (payload) {
   try {
-    const { data } = await api.post(`/api/products`, payload, {
+    const { data } = await api.post(`/products`, payload, {
       headers: {
         'Content-Type': 'multipart/form-data',
       },
@@ -66,7 +65,7 @@ export async function createProduct (payload) {
 
 export async function deleteProduct (id) {
   try {
-    const { data } = await api.delete(`/api/products/${id}`)
+    const { data } = await api.delete(`/products/${id}`)
     
     if (!data.ok) {
       console.warn(data.message)
